@@ -1,0 +1,13 @@
+version: '3.3'
+services:
+  mysql:
+    image: mysql
+    container_name: starwars_data
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - starwars_data:/var/lib/mysql
+volumes:
+  starwars_data:
