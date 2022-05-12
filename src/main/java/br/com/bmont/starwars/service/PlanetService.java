@@ -1,8 +1,10 @@
 package br.com.bmont.starwars.service;
 
 import br.com.bmont.starwars.dto.PlanetDTO;
+import br.com.bmont.starwars.exception.BadRequestException;
 import br.com.bmont.starwars.model.Planet;
 import br.com.bmont.starwars.repository.PlanetRepository;
+import br.com.bmont.starwars.request.GetData;
 import com.sun.xml.bind.v2.TODO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,16 +12,18 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import javax.transaction.Transactional;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
 public class PlanetService {
     private final PlanetRepository planetRepository;
+    private final GetData getData;
 
+    @Transactional
     public void addPlanet(PlanetDTO planetDTO) {
-        //TODO: 06/05/2022 create restTemplate to get movieAppearences
-        int movieAppearances = 2;
+        int movieAppearances = getData.getMovieAppearancesByName(planetDTO.getName());
         Planet planet = Planet.builder()
                 .name(planetDTO.getName())
                 .climate(planetDTO.getClimate())
@@ -38,14 +42,10 @@ public class PlanetService {
     }
     public Planet getById(long id) {
         return planetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Planet not found"));
+                .orElseThrow(() -> new BadRequestException("Planet not found"));
     }
 
     public void removePlanetById(long id) {
         planetRepository.delete(getById(id));
-    }
-
-    public void removePlanetByName(String name) {
-        planetRepository.delete(getByName(name));
     }
 }
