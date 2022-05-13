@@ -6,7 +6,7 @@ import org.springframework.web.client.RestTemplate;
 
 
 @Component
-public class GetData {
+public class RestConsumer {
 
     public int getMovieAppearancesByName(String name){
         ResponseEntity<String> results = new RestTemplate()

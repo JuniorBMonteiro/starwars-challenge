@@ -19,9 +19,8 @@ public class PlanetController {
     private final PlanetService planetService;
 
     @PostMapping
-    public ResponseEntity<Void> addPlanet(@RequestBody @Valid PlanetDTO planetDTO){
-        planetService.addPlanet(planetDTO);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    public ResponseEntity<Planet> addPlanet(@RequestBody @Valid PlanetDTO planetDTO){
+        return new ResponseEntity<>(planetService.addPlanet(planetDTO), HttpStatus.ACCEPTED);
     }
 
     @GetMapping
@@ -29,7 +28,7 @@ public class PlanetController {
         return new ResponseEntity<>(planetService.listAll(pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/get/{name}")
+    @GetMapping("/get")
     public ResponseEntity<Planet> getByName(@RequestParam String name){
         return new ResponseEntity<>(planetService.getByName(name), HttpStatus.OK);
     }
@@ -40,8 +39,8 @@ public class PlanetController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removePlanet(@PathVariable long id){
-        planetService.removePlanetById(id);
+    public ResponseEntity<Void> deletePlanet(@PathVariable long id){
+        planetService.deletePlanetById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

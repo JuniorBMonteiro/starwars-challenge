@@ -1,10 +1,12 @@
 package br.com.bmont.starwars.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 
 @Data
+@Builder
 public class PlanetDTO {
     @NotEmpty(message = "The planet name cannot be empty")
     private String name;
