@@ -16,12 +16,8 @@ public class Planet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
     private String name;
-    @Column
     private String climate;
-    @Column
     private String terrain;
-    @Column
     private int movieAppearances;
 }
