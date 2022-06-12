@@ -1,7 +1,8 @@
 package br.com.bmont.starwars.controller;
 
-import br.com.bmont.starwars.dto.PlanetDTO;
+import br.com.bmont.starwars.request.PlanetRequest;
 import br.com.bmont.starwars.model.Planet;
+import br.com.bmont.starwars.response.PlanetResponse;
 import br.com.bmont.starwars.service.PlanetService;
 import br.com.bmont.starwars.util.PlanetCreator;
 import org.junit.jupiter.api.Assertions;
@@ -35,26 +36,26 @@ class PlanetControllerTest {
 
     @BeforeEach
     void init(){
-        Planet planet = PlanetCreator.createPlanetWithId();
-        BDDMockito.when(planetService.addPlanet(ArgumentMatchers.any(PlanetDTO.class)))
-                .thenReturn(planet);
+        PlanetResponse planetResponse = PlanetCreator.createPlanetResponseWithId();
+        BDDMockito.when(planetService.addPlanet(ArgumentMatchers.any(PlanetRequest.class)))
+                .thenReturn(planetResponse);
 
         BDDMockito.when(planetService.getById(ArgumentMatchers.anyLong()))
-                .thenReturn(planet);
+                .thenReturn(planetResponse);
 
         BDDMockito.when(planetService.getByName(ArgumentMatchers.anyString()))
-                .thenReturn(planet);
+                .thenReturn(planetResponse);
 
         BDDMockito.when(planetService.listAll(ArgumentMatchers.any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(planet)));
+                .thenReturn(new PageImpl<>(List.of(planetResponse)));
 
         BDDMockito.doNothing().when(planetService).deletePlanetById(ArgumentMatchers.anyLong());
     }
 
     @Test
     void addPlanet_ReturnsPlanet_WhenSuccessful(){
-        Planet expectedPlanet = PlanetCreator.createPlanetWithId();
-        ResponseEntity<Planet> response = planetController.addPlanet(PlanetCreator.createPlanetDTO());
+        PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
+        ResponseEntity<PlanetResponse> response = planetController.addPlanet(PlanetCreator.createPlanetRequest());
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedPlanet, response.getBody());
         Assertions.assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
@@ -62,8 +63,8 @@ class PlanetControllerTest {
 
     @Test
     void getById_ReturnsPlanet_WhenSuccessful(){
-        Planet expectedPlanet = PlanetCreator.createPlanetWithId();
-        ResponseEntity<Planet> response = planetController.getById(1);
+        PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
+        ResponseEntity<PlanetResponse> response = planetController.getById(1);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedPlanet, response.getBody());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -71,8 +72,8 @@ class PlanetControllerTest {
 
     @Test
     void getByName_ReturnsPlanet_WhenSuccessful(){
-        Planet expectedPlanet = PlanetCreator.createPlanetWithId();
-        ResponseEntity<Planet> response = planetController.getByName(expectedPlanet.getName());
+        PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
+        ResponseEntity<PlanetResponse> response = planetController.getByName(expectedPlanet.getName());
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedPlanet, response.getBody());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -80,8 +81,8 @@ class PlanetControllerTest {
 
     @Test
     void listAll_ReturnsPageOfPlanet_WhenSuccessful(){
-        Planet expectedPlanet = PlanetCreator.createPlanetWithId();
-        ResponseEntity<Page<Planet>> response = planetController.listAll(PageRequest.of(0, 10));
+        PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
+        ResponseEntity<Page<PlanetResponse>> response = planetController.listAll(PageRequest.of(0, 10));
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedPlanet, response.getBody().toList().get(0));
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());

@@ -1,7 +1,8 @@
 package br.com.bmont.starwars.util;
 
-import br.com.bmont.starwars.dto.PlanetDTO;
+import br.com.bmont.starwars.request.PlanetRequest;
 import br.com.bmont.starwars.model.Planet;
+import br.com.bmont.starwars.response.PlanetResponse;
 
 public class PlanetCreator {
 
@@ -15,6 +16,17 @@ public class PlanetCreator {
                 .build();
     }
 
+    public static PlanetResponse createPlanetResponseWithId(){
+        return PlanetResponse.builder()
+                .id(1L)
+                .name("test")
+                .climate("temperate")
+                .terrain("mountains")
+                .movieAppearances(0)
+                .build();
+    }
+
+
     public static Planet createPlanetWithoutId(){
         return Planet.builder()
                 .name("test")
@@ -24,8 +36,17 @@ public class PlanetCreator {
                 .build();
     }
 
-    public static PlanetDTO createPlanetDTO(){
-        return PlanetDTO.builder()
+    public static PlanetResponse createPlanetResponseWithoutId(){
+        return PlanetResponse.builder()
+                .name("test")
+                .climate("temperate")
+                .terrain("mountains")
+                .movieAppearances(0)
+                .build();
+    }
+
+    public static PlanetRequest createPlanetRequest(){
+        return PlanetRequest.builder()
                 .name("test")
                 .climate("temperate")
                 .terrain("mountains")

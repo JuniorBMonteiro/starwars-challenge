@@ -2,10 +2,10 @@ package br.com.bmont.starwars.integration;
 
 import br.com.bmont.starwars.model.Planet;
 import br.com.bmont.starwars.repository.PlanetRepository;
+import br.com.bmont.starwars.response.PlanetResponse;
 import br.com.bmont.starwars.util.PlanetCreator;
 import br.com.bmont.starwars.wrapper.PageableResponse;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -28,9 +28,9 @@ public class PlanetControllerIT {
 
     @Test
     void addPlanet_ReturnsPlanet_WhenSuccessful(){
-        Planet expectedPlanet = PlanetCreator.createPlanetWithId();
-        ResponseEntity<Planet> response = testRestTemplate
-                .postForEntity("/planets", PlanetCreator.createPlanetDTO(), Planet.class);
+        PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
+        ResponseEntity<PlanetResponse> response = testRestTemplate
+                .postForEntity("/planets", PlanetCreator.createPlanetRequest(), PlanetResponse.class);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedPlanet, response.getBody());
     }
@@ -38,27 +38,29 @@ public class PlanetControllerIT {
     @Test
     void getById_ReturnsPlanet_WhenSuccessful() {
         Planet planetSaved = planetRepository.save(PlanetCreator.createPlanetWithoutId());
-        Planet planet = testRestTemplate.getForObject("/planets/{id}", Planet.class, planetSaved.getId());
+        PlanetResponse planet = testRestTemplate.getForObject("/planets/{id}", PlanetResponse.class, planetSaved.getId());
         Assertions.assertNotNull(planet);
-        Assertions.assertEquals(planetSaved, planet);
+        Assertions.assertEquals(planetSaved.getId(), planet.getId());
+        Assertions.assertEquals(planetSaved.getName(), planet.getName());
     }
 
     @Test
     void getByName_ReturnsPlanet_WhenSuccessful(){
         Planet planetSaved = planetRepository.save(PlanetCreator.createPlanetWithoutId());
-        Planet response = testRestTemplate.getForObject("/planets/get?name=test", Planet.class);
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(planetSaved, response);
+        PlanetResponse planet = testRestTemplate.getForObject("/planets/name/test", PlanetResponse.class);
+        Assertions.assertNotNull(planet);
+        Assertions.assertEquals(planetSaved.getId(), planet.getId());
+        Assertions.assertEquals(planetSaved.getName(), planet.getName());
     }
 
     @Test
     void listAll_ReturnsPageOfPlanet_WhenSuccessful(){
         Planet planetSaved = planetRepository.save(PlanetCreator.createPlanetWithoutId());
-        PageableResponse<Planet> pageableResponse = testRestTemplate.exchange("/planets", HttpMethod.GET, null,
-                new ParameterizedTypeReference<PageableResponse<Planet>>() {
+        PageableResponse<PlanetResponse> pageableResponse = testRestTemplate.exchange("/planets", HttpMethod.GET, null,
+                new ParameterizedTypeReference<PageableResponse<PlanetResponse>>() {
                 }).getBody();
         Assertions.assertNotNull(pageableResponse);
-        Assertions.assertEquals(pageableResponse.toList().get(0), planetSaved);
+        Assertions.assertEquals(pageableResponse.toList().get(0).getId(), planetSaved.getId());
     }
 
     @Test

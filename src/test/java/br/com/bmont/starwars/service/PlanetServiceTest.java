@@ -1,10 +1,10 @@
 package br.com.bmont.starwars.service;
 
-import br.com.bmont.starwars.dto.PlanetDTO;
 import br.com.bmont.starwars.exception.BadRequestException;
 import br.com.bmont.starwars.model.Planet;
 import br.com.bmont.starwars.repository.PlanetRepository;
-import br.com.bmont.starwars.request.RestConsumer;
+import br.com.bmont.starwars.client.RestConsumer;
+import br.com.bmont.starwars.response.PlanetResponse;
 import br.com.bmont.starwars.util.PlanetCreator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +36,7 @@ class PlanetServiceTest {
     @Mock
     private RestConsumer restConsumer;
 
+
     @BeforeEach
     void init(){
         Planet planet = PlanetCreator.createPlanetWithId();
@@ -50,10 +51,10 @@ class PlanetServiceTest {
         BDDMockito.when(planetRepository.findById(ArgumentMatchers.anyLong()))
                 .thenReturn(Optional.of(planet));
 
-        BDDMockito.when(planetService.getByName(ArgumentMatchers.anyString()))
-                .thenReturn(planet);
+        BDDMockito.when(planetRepository.findByName(ArgumentMatchers.anyString()))
+                .thenReturn(Optional.of(planet));
 
-        BDDMockito.when(planetService.listAll(ArgumentMatchers.any(Pageable.class)))
+        BDDMockito.when(planetRepository.findAll(ArgumentMatchers.any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(planet)));
 
         BDDMockito.doNothing().when(planetRepository).delete(ArgumentMatchers.any(Planet.class));
@@ -61,16 +62,16 @@ class PlanetServiceTest {
 
     @Test
     void addPlanet_ReturnsPlanet_WhenSuccessful(){
-        Planet expectedPlanet = PlanetCreator.createPlanetWithId();
-        Planet planetSaved = planetService.addPlanet(PlanetCreator.createPlanetDTO());
+        PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
+        PlanetResponse planetSaved = planetService.addPlanet(PlanetCreator.createPlanetRequest());
         Assertions.assertNotNull(planetSaved);
         Assertions.assertEquals(expectedPlanet, planetSaved);
     }
 
     @Test
     void getById_ReturnsPlanet_WhenSuccessful(){
-        Planet expectedPlanet = PlanetCreator.createPlanetWithId();
-        Planet planetFound = planetService.getById(1);
+        PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
+        PlanetResponse planetFound = planetService.getById(1);
         Assertions.assertNotNull(planetFound);
         Assertions.assertEquals(expectedPlanet, planetFound);
     }
@@ -84,16 +85,23 @@ class PlanetServiceTest {
 
     @Test
     void getByName_ReturnsPlanet_WhenSuccessful(){
-        Planet expectedPlanet = PlanetCreator.createPlanetWithId();
-        Planet planetFound = planetService.getByName(expectedPlanet.getName());
+        PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
+        PlanetResponse planetFound = planetService.getByName(expectedPlanet.getName());
         Assertions.assertNotNull(planetFound);
         Assertions.assertEquals(expectedPlanet, planetFound);
     }
 
     @Test
+    void getByName_ThrowsBadRequestException_WhenPlanetIsNotFound(){
+        BDDMockito.when(planetRepository.findByName(ArgumentMatchers.anyString()))
+                .thenThrow(new BadRequestException("Planet Not Found"));
+        Assertions.assertThrows(BadRequestException.class, () -> planetService.getByName("teste"));
+    }
+
+    @Test
     void listAll_ReturnsPageOfPlanet_WhenSuccessful(){
-        Planet expectedPlanet = PlanetCreator.createPlanetWithId();
-        Page<Planet> page = planetService.listAll(PageRequest.of(0, 10));
+        PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
+        Page<PlanetResponse> page = planetService.listAll(PageRequest.of(0, 10));
         Assertions.assertFalse(page.isEmpty());
         Assertions.assertEquals(1, page.getTotalElements());
         Assertions.assertEquals(expectedPlanet, page.toList().get(0));
@@ -103,4 +111,5 @@ class PlanetServiceTest {
     void delete_RemovesPlanet_WhenSuccessful(){
         Assertions.assertDoesNotThrow(() -> planetService.deletePlanetById(1));
     }
+
 }

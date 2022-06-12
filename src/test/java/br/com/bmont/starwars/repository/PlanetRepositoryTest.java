@@ -3,7 +3,6 @@ package br.com.bmont.starwars.repository;
 import br.com.bmont.starwars.model.Planet;
 import br.com.bmont.starwars.util.PlanetCreator;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +19,6 @@ import java.util.Optional;
 class PlanetRepositoryTest {
     @Autowired
     private PlanetRepository planetRepository;
-
-    @BeforeEach
-    void init(){
-
-    }
 
     @Test
     void findById_ReturnsPlanet_WhenSuccessful(){
@@ -46,7 +40,7 @@ class PlanetRepositoryTest {
     @Test
     void findByName_ReturnsPlanet_WhenSuccessful(){
         Planet planetSaved = planetRepository.save(PlanetCreator.createPlanetWithoutId());
-        Planet planetFound = planetRepository.findByName(planetSaved.getName());
+        Planet planetFound = planetRepository.findByName(planetSaved.getName()).get();
         Assertions.assertNotNull(planetFound);
         Assertions.assertEquals(planetFound.getId(), planetSaved.getId());
         Assertions.assertEquals(planetFound.getName(), planetSaved.getName());
@@ -55,9 +49,9 @@ class PlanetRepositoryTest {
     }
 
     @Test
-    void findByName_ReturnsNull_WhenPlanetIsNotFound(){
-        Planet planetFound = planetRepository.findByName("example");
-        Assertions.assertNull(planetFound);
+    void findByName_ReturnsEmpty_WhenPlanetIsNotFound(){
+        Optional<Planet> planet = planetRepository.findByName("example");
+        Assertions.assertTrue(planet.isEmpty());
     }
 
     @Test

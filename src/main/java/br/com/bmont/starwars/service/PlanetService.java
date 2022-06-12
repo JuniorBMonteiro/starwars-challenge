@@ -1,10 +1,12 @@
 package br.com.bmont.starwars.service;
 
-import br.com.bmont.starwars.dto.PlanetDTO;
+import br.com.bmont.starwars.mapper.PlanetMapper;
+import br.com.bmont.starwars.request.PlanetRequest;
 import br.com.bmont.starwars.exception.BadRequestException;
 import br.com.bmont.starwars.model.Planet;
 import br.com.bmont.starwars.repository.PlanetRepository;
-import br.com.bmont.starwars.request.RestConsumer;
+import br.com.bmont.starwars.client.RestConsumer;
+import br.com.bmont.starwars.response.PlanetResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,34 +18,40 @@ import javax.transaction.Transactional;
 @RequiredArgsConstructor
 public class PlanetService {
     private final PlanetRepository planetRepository;
-    private final RestConsumer restConsumer;
+    private final RestConsumer restConsumer = new RestConsumer();
 
     @Transactional
-    public Planet addPlanet(PlanetDTO planetDTO) {
-        int movieAppearances = restConsumer.getMovieAppearancesByName(planetDTO.getName());
+    public PlanetResponse addPlanet(PlanetRequest planetRequest) {
+        int movieAppearances = restConsumer.getMovieAppearancesByName(planetRequest.getName());
         Planet planet = Planet.builder()
-                .name(planetDTO.getName())
-                .climate(planetDTO.getClimate())
-                .terrain(planetDTO.getTerrain())
+                .name(planetRequest.getName())
+                .climate(planetRequest.getClimate())
+                .terrain(planetRequest.getTerrain())
                 .movieAppearances(movieAppearances)
                 .build();
-        return planetRepository.save(planet);
+        Planet planetSaved = planetRepository.save(planet);
+        return PlanetMapper.toPlanetResponse(planetSaved);
     }
     
-    public Page<Planet> listAll(Pageable pageable){
-        return planetRepository.findAll(pageable);
+    public Page<PlanetResponse> listAll(Pageable pageable){
+        Page<Planet> planets = planetRepository.findAll(pageable);
+        return PlanetMapper.toPlanetResponse(planets);
     }
 
-    public Planet getByName(String name) {
-        return planetRepository.findByName(name);
-    }
-
-    public Planet getById(long id) {
-        return planetRepository.findById(id)
+    public PlanetResponse getByName(String name) {
+        Planet planet = planetRepository.findByName(name)
                 .orElseThrow(() -> new BadRequestException("Planet not found"));
+        return PlanetMapper.toPlanetResponse(planet);
+    }
+
+    public PlanetResponse getById(long id) {
+        Planet planet = planetRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Planet not found"));
+        return PlanetMapper.toPlanetResponse(planet);
     }
 
     public void deletePlanetById(long id) {
-        planetRepository.delete(getById(id));
+        getById(id);
+        planetRepository.deleteById(id);
     }
 }

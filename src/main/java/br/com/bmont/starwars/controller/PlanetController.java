@@ -1,7 +1,8 @@
 package br.com.bmont.starwars.controller;
 
-import br.com.bmont.starwars.dto.PlanetDTO;
+import br.com.bmont.starwars.request.PlanetRequest;
 import br.com.bmont.starwars.model.Planet;
+import br.com.bmont.starwars.response.PlanetResponse;
 import br.com.bmont.starwars.service.PlanetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,22 +20,22 @@ public class PlanetController {
     private final PlanetService planetService;
 
     @PostMapping
-    public ResponseEntity<Planet> addPlanet(@RequestBody @Valid PlanetDTO planetDTO){
-        return new ResponseEntity<>(planetService.addPlanet(planetDTO), HttpStatus.ACCEPTED);
+    public ResponseEntity<PlanetResponse> addPlanet(@RequestBody @Valid PlanetRequest planetRequest){
+        return new ResponseEntity<>(planetService.addPlanet(planetRequest), HttpStatus.ACCEPTED);
     }
 
     @GetMapping
-    public ResponseEntity<Page<Planet>> listAll(Pageable pageable){
+    public ResponseEntity<Page<PlanetResponse>> listAll(Pageable pageable){
         return new ResponseEntity<>(planetService.listAll(pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<Planet> getByName(@RequestParam String name){
+    @GetMapping("/name/{name}")
+    public ResponseEntity<PlanetResponse> getByName(@PathVariable String name){
         return new ResponseEntity<>(planetService.getByName(name), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Planet> getById(@PathVariable long id){
+    public ResponseEntity<PlanetResponse> getById(@PathVariable long id){
         return new ResponseEntity<>(planetService.getById(id), HttpStatus.OK);
     }
 
