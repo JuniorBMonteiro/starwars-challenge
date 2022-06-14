@@ -1,6 +1,7 @@
 package br.com.bmont.starwars.mapper;
 
 import br.com.bmont.starwars.model.Planet;
+import br.com.bmont.starwars.request.PlanetRequest;
 import br.com.bmont.starwars.response.PlanetResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,7 +21,15 @@ public class PlanetMapper {
     }
 
     public static Page<PlanetResponse> toPlanetResponse(Page<Planet> planet){
-        return new PageImpl<>(planet.stream().map(PlanetMapper::toPlanetResponse)
-                .collect(Collectors.toList()));
+        return planet.map(PlanetMapper::toPlanetResponse);
+    }
+
+    public static Planet toPlanet(PlanetRequest planetRequest, int movieAppearances){
+        return Planet.builder()
+                .name(planetRequest.getName())
+                .climate(planetRequest.getClimate())
+                .terrain(planetRequest.getTerrain())
+                .movieAppearances(movieAppearances)
+                .build();
     }
 }

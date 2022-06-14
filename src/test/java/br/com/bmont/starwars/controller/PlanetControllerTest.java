@@ -1,7 +1,6 @@
 package br.com.bmont.starwars.controller;
 
 import br.com.bmont.starwars.request.PlanetRequest;
-import br.com.bmont.starwars.model.Planet;
 import br.com.bmont.starwars.response.PlanetResponse;
 import br.com.bmont.starwars.service.PlanetService;
 import br.com.bmont.starwars.util.PlanetCreator;
@@ -40,13 +39,13 @@ class PlanetControllerTest {
         BDDMockito.when(planetService.addPlanet(ArgumentMatchers.any(PlanetRequest.class)))
                 .thenReturn(planetResponse);
 
-        BDDMockito.when(planetService.getById(ArgumentMatchers.anyLong()))
+        BDDMockito.when(planetService.getPlanetById(ArgumentMatchers.anyLong()))
                 .thenReturn(planetResponse);
 
-        BDDMockito.when(planetService.getByName(ArgumentMatchers.anyString()))
+        BDDMockito.when(planetService.getPlanetByName(ArgumentMatchers.anyString()))
                 .thenReturn(planetResponse);
 
-        BDDMockito.when(planetService.listAll(ArgumentMatchers.any(Pageable.class)))
+        BDDMockito.when(planetService.listAllPlanets(ArgumentMatchers.any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(planetResponse)));
 
         BDDMockito.doNothing().when(planetService).deletePlanetById(ArgumentMatchers.anyLong());
@@ -58,13 +57,13 @@ class PlanetControllerTest {
         ResponseEntity<PlanetResponse> response = planetController.addPlanet(PlanetCreator.createPlanetRequest());
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedPlanet, response.getBody());
-        Assertions.assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
     @Test
     void getById_ReturnsPlanet_WhenSuccessful(){
         PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
-        ResponseEntity<PlanetResponse> response = planetController.getById(1);
+        ResponseEntity<PlanetResponse> response = planetController.getPlanetById(1);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedPlanet, response.getBody());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -73,7 +72,7 @@ class PlanetControllerTest {
     @Test
     void getByName_ReturnsPlanet_WhenSuccessful(){
         PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
-        ResponseEntity<PlanetResponse> response = planetController.getByName(expectedPlanet.getName());
+        ResponseEntity<PlanetResponse> response = planetController.getPlanetByName(expectedPlanet.getName());
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedPlanet, response.getBody());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -82,7 +81,7 @@ class PlanetControllerTest {
     @Test
     void listAll_ReturnsPageOfPlanet_WhenSuccessful(){
         PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
-        ResponseEntity<Page<PlanetResponse>> response = planetController.listAll(PageRequest.of(0, 10));
+        ResponseEntity<Page<PlanetResponse>> response = planetController.listAllPlanets(PageRequest.of(0, 10));
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedPlanet, response.getBody().toList().get(0));
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -90,8 +89,8 @@ class PlanetControllerTest {
 
     @Test
     void delete_RemovesPlanet_WhenSuccessful(){
-        Assertions.assertDoesNotThrow(() -> planetController.deletePlanet(1));
-        ResponseEntity<Void> response = planetController.deletePlanet(1);
+        Assertions.assertDoesNotThrow(() -> planetController.deletePlanetById(1));
+        ResponseEntity<Void> response = planetController.deletePlanetById(1);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }

@@ -22,36 +22,38 @@ public class PlanetService {
 
     @Transactional
     public PlanetResponse addPlanet(PlanetRequest planetRequest) {
+        if (planetAlreadyExists(planetRequest.getName())){
+            throw new BadRequestException("Planet already exists");
+        }
         int movieAppearances = restConsumer.getMovieAppearancesByName(planetRequest.getName());
-        Planet planet = Planet.builder()
-                .name(planetRequest.getName())
-                .climate(planetRequest.getClimate())
-                .terrain(planetRequest.getTerrain())
-                .movieAppearances(movieAppearances)
-                .build();
+        Planet planet = PlanetMapper.toPlanet(planetRequest, movieAppearances);
         Planet planetSaved = planetRepository.save(planet);
         return PlanetMapper.toPlanetResponse(planetSaved);
     }
     
-    public Page<PlanetResponse> listAll(Pageable pageable){
+    public Page<PlanetResponse> listAllPlanets(Pageable pageable){
         Page<Planet> planets = planetRepository.findAll(pageable);
         return PlanetMapper.toPlanetResponse(planets);
     }
 
-    public PlanetResponse getByName(String name) {
+    public PlanetResponse getPlanetByName(String name) {
         Planet planet = planetRepository.findByName(name)
                 .orElseThrow(() -> new BadRequestException("Planet not found"));
         return PlanetMapper.toPlanetResponse(planet);
     }
 
-    public PlanetResponse getById(long id) {
+    public PlanetResponse getPlanetById(long id) {
         Planet planet = planetRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Planet not found"));
         return PlanetMapper.toPlanetResponse(planet);
     }
 
     public void deletePlanetById(long id) {
-        getById(id);
+        getPlanetById(id);
         planetRepository.deleteById(id);
+    }
+
+    private boolean planetAlreadyExists(String name){
+        return planetRepository.findByName(name).isPresent();
     }
 }

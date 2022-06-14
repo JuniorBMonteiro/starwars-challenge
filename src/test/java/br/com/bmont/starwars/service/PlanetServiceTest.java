@@ -62,6 +62,8 @@ class PlanetServiceTest {
 
     @Test
     void addPlanet_ReturnsPlanet_WhenSuccessful(){
+        BDDMockito.when(planetRepository.findByName(ArgumentMatchers.anyString()))
+                .thenReturn(Optional.ofNullable(null));
         PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
         PlanetResponse planetSaved = planetService.addPlanet(PlanetCreator.createPlanetRequest());
         Assertions.assertNotNull(planetSaved);
@@ -71,7 +73,7 @@ class PlanetServiceTest {
     @Test
     void getById_ReturnsPlanet_WhenSuccessful(){
         PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
-        PlanetResponse planetFound = planetService.getById(1);
+        PlanetResponse planetFound = planetService.getPlanetById(1);
         Assertions.assertNotNull(planetFound);
         Assertions.assertEquals(expectedPlanet, planetFound);
     }
@@ -80,13 +82,13 @@ class PlanetServiceTest {
     void getById_ThrowsBadRequestException_WhenPlanetIsNotFound(){
         BDDMockito.when(planetRepository.findById(ArgumentMatchers.anyLong()))
                 .thenThrow(new BadRequestException("Planet Not Found"));
-        Assertions.assertThrows(BadRequestException.class, () -> planetService.getById(1));
+        Assertions.assertThrows(BadRequestException.class, () -> planetService.getPlanetById(1));
     }
 
     @Test
     void getByName_ReturnsPlanet_WhenSuccessful(){
         PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
-        PlanetResponse planetFound = planetService.getByName(expectedPlanet.getName());
+        PlanetResponse planetFound = planetService.getPlanetByName(expectedPlanet.getName());
         Assertions.assertNotNull(planetFound);
         Assertions.assertEquals(expectedPlanet, planetFound);
     }
@@ -95,13 +97,13 @@ class PlanetServiceTest {
     void getByName_ThrowsBadRequestException_WhenPlanetIsNotFound(){
         BDDMockito.when(planetRepository.findByName(ArgumentMatchers.anyString()))
                 .thenThrow(new BadRequestException("Planet Not Found"));
-        Assertions.assertThrows(BadRequestException.class, () -> planetService.getByName("teste"));
+        Assertions.assertThrows(BadRequestException.class, () -> planetService.getPlanetByName("teste"));
     }
 
     @Test
     void listAll_ReturnsPageOfPlanet_WhenSuccessful(){
         PlanetResponse expectedPlanet = PlanetCreator.createPlanetResponseWithId();
-        Page<PlanetResponse> page = planetService.listAll(PageRequest.of(0, 10));
+        Page<PlanetResponse> page = planetService.listAllPlanets(PageRequest.of(0, 10));
         Assertions.assertFalse(page.isEmpty());
         Assertions.assertEquals(1, page.getTotalElements());
         Assertions.assertEquals(expectedPlanet, page.toList().get(0));
